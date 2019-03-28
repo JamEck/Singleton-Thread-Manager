@@ -10,8 +10,8 @@ class ThreadManager{
 private:
     static ThreadManager* tm;
     std::vector<std::future<void>*> threads;
-    std::queue<void(*)()> jobs;
-    bool alive = true;
+    static std::queue<void(*)()> jobs;
+    static bool alive;
     std::thread jobThread;
     
     // constructor. assign number of threads active at once.
@@ -40,7 +40,7 @@ public:
     
     
     // returns false if job gets queued
-    static bool addJob(void(*func)());
+    static bool addJob(void(*)());
     
     // gets Singleton tm
     static ThreadManager& get();

@@ -1,6 +1,8 @@
 #include "ThreadManager.hpp"
 
 ThreadManager* ThreadManager::tm = new ThreadManager(4);
+std::queue<void(*)()> ThreadManager::jobs = std::queue<void(*)()>();
+bool ThreadManager::alive = true;
 
 
 // constructor. assign number of threads active at once.
@@ -15,8 +17,8 @@ ThreadManager::ThreadManager(int numOfThreads){
 // function for jobThread/
 // waits for available thread slots and assigns next job.
 void ThreadManager::manageJobs(){
-    while(tm->alive){ // if Singleton is still alive
-        if(!tm->jobs.empty()){ // if there are jobs to be done
+    while(ThreadManager::alive){ // if Singleton is still alive
+        if(!ThreadManager::jobs.empty()){ // if there are jobs to be done
             auto f = tm->getAvailable(); // check for available thread slots
             if(f){ // if found
                 
@@ -24,8 +26,8 @@ void ThreadManager::manageJobs(){
                 *f = new std::future<void>;
                 
                 // launch async thread with next job on queue
-                **f = std::async(std::launch::async, tm->jobs.front());
-                tm->jobs.pop(); // remove job from queue
+                **f = std::async(std::launch::async, ThreadManager::jobs.front());
+                ThreadManager::jobs.pop(); // remove job from queue
             }
         }
     }
@@ -38,7 +40,7 @@ void ThreadManager::destroy(bool finish){
     if(finish) while(!jobs.empty());
     
     // set alive to false so jobThread while loop terminates
-    alive = false;
+    ThreadManager::alive = false;
     jobThread.join();
     
     // wait for threads to finish and delete them
