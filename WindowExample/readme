@@ -1,1 +1,4 @@
 Uses SDL 2.0 framework to create window
+
+Modifications are made to the Thread Manager class
+to make it accept functions with parameters more elegantly.
